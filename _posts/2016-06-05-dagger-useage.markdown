@@ -233,7 +233,7 @@ interface CoffeeShop {
 		coffeeShop.inject(this);
 	}
 
-	```java
+	```
 
 	Component 之间也可以互相依赖，达到扩展 Component 的目的。有两种方式 dependencies 和 Subcomponent，二者的区别是 dependencies 侧重在重用 Component，比如 ClassB 依赖 ClassA，ClassA 已经有 ModuleA 提供，同时在 ComponentA 中提供了获取 ClassA 的接口，那么ComponentB 就可以直接使用 ComponentA 来提供 ClassA；而 Subcomponent 侧重在重用 module，如果ComponentA 不想把 ClassA 暴露出来，只是在 ModuleA 中给内部其他类提供依赖，这时就需要使用 Subcomponent 的方式来让 ComponentB 获取到 ClassA 的。通过 Subcomponent 注解，ComponentB 可以访问到 ComponentA 内部类图提供的所有类。
 
@@ -297,6 +297,7 @@ interface CoffeeShop {
 	有时候在一个 Module 里需要提供有相同接口的不同类实例，比如 Context，需要提供 Activity 类型的和 Application 类型的，但方法的返回值都是 Context，怎么告诉 Dagger 这是两种不同的子类型呢？就是用 @Qualifier 来标识不同的类实例。
 
 	```java
+
 	@Qualifier
 	@Documented
 	@Retention(RUNTIME)
@@ -324,6 +325,7 @@ interface CoffeeShop {
 	@Scope 注解用于提供组建内的单例模式，被 @Scrope 标识的 Component，其 依赖的 Module 里 Provide 的对象都必须有相应的 Scope 或者没有 Scope，被 Scope 标识的 Provide 方法产生的对象，在相应的 Component 生命周期内只会产生一个实例。@Singleton 是 Dagger 默认提供的一个 Scope，我们也可以定义自己的 Scope。
 
 	```java
+
 	@Scope
 	public @interface ActivityScope {
 	}
@@ -348,6 +350,7 @@ interface CoffeeShop {
 	- Provider 每次调用均创建新的实例
 
 	```java
+
 	@Inject Lazy<Message> message;
 	message.get().messageMethod();
 
