@@ -31,6 +31,7 @@ class A {
 		this.b = b
 	}
 }
+
 ```
 
 ## Dagger
@@ -42,6 +43,7 @@ Dagger 是一个针对 Java 语言的依赖注入框架
 如何使用 Dagger 来实现依赖注入？先看一下 Dagger 提供的 Api ，
 
 ```java
+
 public @interface Component {
     Class<?>[] modules() default {};
     Class<?>[] dependencies() default {};
@@ -65,11 +67,13 @@ public @interface MapKey {
 public interface Lazy<T> {
     T get();
 }
+
 ```
 
 上面是 Dagger 定义的注解类型，Dagger 中还使用了一些 JSR-330 定义的标准注解，
 
 ```java
+
 public @interface Inject {
 }
 
@@ -78,6 +82,7 @@ public @interface Scope {
 
 public @interface Qualifier {
 }
+
 ```
 
 下面详细说明一下这些注解的含义和用法
@@ -88,7 +93,8 @@ public @interface Qualifier {
 
 	1、构造函数
 
-	```
+	```java
+
 	class Thermosiphon implements Pump {
 		private final Heater heater;
 
@@ -99,26 +105,30 @@ public @interface Qualifier {
 
 	  	...
 	}
+
 	```
 
 	需要注意的是如果一个类有多个构造函数，我们只能在其中一个构造函数上使用 @Inject 。
 
 	2、成员变量
 
-	```
+	```java
+
 	class CoffeeMaker {
 	  	@Inject Heater heater;
 	  	@Inject Pump pump;
 
 	  	...
 	}
+
 	```
 
 	这里的成员变量不能是 private 或者 protected，因为 Dagger 需要能够访问这些成员来为它们赋值。
 
 	3、方法
 
-	```
+	```java
+
 	class CoffeeMaker {
 
 		@Inject Heater heater;
@@ -129,6 +139,7 @@ public @interface Qualifier {
 		}
 
 	}
+
 	```
 	只有一种情况下使用方法注入，就是需要传递当前对象的时候，因为 @Inject 标识的方法会在类构造函数调用完成之后被立刻调用。
 
@@ -141,7 +152,8 @@ public @interface Qualifier {
 
 - @Provides
 
-	```
+	```java
+
 	@Provides Heater provideHeater() {
 	  	return new ElectricHeater();
 	}
@@ -156,13 +168,15 @@ public @interface Qualifier {
 	@Provides Activity provideActivity() {
 	  	return activity;
 	}
+
 	```
 
 	有了 @Provides，这些方法放在什么地方呢，Dagger 提供了另一个注解 @Module
 
 - @Module
 
-	```
+	```java
+
 	@Module
 	class DripCoffeeModule {
 	  	@Provides Heater provideHeater() {
@@ -172,6 +186,7 @@ public @interface Qualifier {
 	    	return pump;
 	  	}
 	}
+
 	```
 
 	@Module 用来注解一个类，表示 Dagger 的一个模块，用来提供一些依赖类的实例。
@@ -180,7 +195,8 @@ public @interface Qualifier {
 
 - @Component
 
-	```
+	```java
+
 	@Component(modules = DripCoffeeModule.class)
 interface CoffeeShop {
 
@@ -188,6 +204,7 @@ interface CoffeeShop {
 
 	  	CoffeeMaker maker();
 	}
+
 	```
 
 	@Component 用来注解一个接口，同时声明需要依赖的 Module，接口中的方法包括两类，一种为特定的类提供依赖注入，如上面的 `inject` 方法，主要用于一些框架类中的依赖注入，像 Android 中 Activity 成员变量的注入；另一种用于向外界提供需要的类对象。
@@ -195,7 +212,8 @@ interface CoffeeShop {
 
 	编译之后，Dagger 会为 CoffeeShop 生成一个 DaggerCoffeeShop 对象，然后
 
-	```
+	```java
+
 	CoffeeShop coffeeShop = DaggerCoffeeShop.builder()
 	    .dripCoffeeModule(new DripCoffeeModule())
 	    .build();
@@ -214,11 +232,13 @@ interface CoffeeShop {
 
 		coffeeShop.inject(this);
 	}
-	```
+
+	```java
 
 	Component 之间也可以互相依赖，达到扩展 Component 的目的。有两种方式 dependencies 和 Subcomponent，二者的区别是 dependencies 侧重在重用 Component，比如 ClassB 依赖 ClassA，ClassA 已经有 ModuleA 提供，同时在 ComponentA 中提供了获取 ClassA 的接口，那么ComponentB 就可以直接使用 ComponentA 来提供 ClassA；而 Subcomponent 侧重在重用 module，如果ComponentA 不想把 ClassA 暴露出来，只是在 ModuleA 中给内部其他类提供依赖，这时就需要使用 Subcomponent 的方式来让 ComponentB 获取到 ClassA 的。通过 Subcomponent 注解，ComponentB 可以访问到 ComponentA 内部类图提供的所有类。
 
-	```
+	```java
+
 	// dependencies 方式
 	public class ComponentDependency {
 	    @Component(modules = ModuleA.class)
@@ -276,7 +296,7 @@ interface CoffeeShop {
 
 	有时候在一个 Module 里需要提供有相同接口的不同类实例，比如 Context，需要提供 Activity 类型的和 Application 类型的，但方法的返回值都是 Context，怎么告诉 Dagger 这是两种不同的子类型呢？就是用 @Qualifier 来标识不同的类实例。
 
-	```
+	```java
 	@Qualifier
 	@Documented
 	@Retention(RUNTIME)
@@ -296,13 +316,14 @@ interface CoffeeShop {
 	  	@Inject @Named("hot plate") Heater hotPlateHeater;
 	  	...
 	}
+
 	```
 
 - @Scope
 
 	@Scope 注解用于提供组建内的单例模式，被 @Scrope 标识的 Component，其 依赖的 Module 里 Provide 的对象都必须有相应的 Scope 或者没有 Scope，被 Scope 标识的 Provide 方法产生的对象，在相应的 Component 生命周期内只会产生一个实例。@Singleton 是 Dagger 默认提供的一个 Scope，我们也可以定义自己的 Scope。
 
-	```
+	```java
 	@Scope
 	public @interface ActivityScope {
 	}
@@ -318,6 +339,7 @@ interface CoffeeShop {
 
 	    SplashActivityPresenter presenter();
 	}
+
 	```
 
 - 其他
@@ -325,11 +347,12 @@ interface CoffeeShop {
 	- Lazy 提供晚加载，只有在第一次使用的时候才会去加载
 	- Provider 每次调用均创建新的实例
 
-	```
+	```java
 	@Inject Lazy<Message> message;
 	message.get().messageMethod();
 
 	@Inject Provider<Filter> filterProvider;
+
 	```
 
 
@@ -341,3 +364,7 @@ interface CoffeeShop {
 [http://leoray.leanote.com/post/dagger2](http://leoray.leanote.com/post/dagger2)
 
 [http://stackoverflow.com/questions/29587130/dagger-2-subcomponents-vs-component-dependencies](http://stackoverflow.com/questions/29587130/dagger-2-subcomponents-vs-component-dependencies)
+
+[http://frogermcs.github.io/dependency-injection-with-dagger-2-the-api/](http://frogermcs.github.io/dependency-injection-with-dagger-2-the-api/)
+
+[http://google.github.io/dagger/](http://google.github.io/dagger/)
