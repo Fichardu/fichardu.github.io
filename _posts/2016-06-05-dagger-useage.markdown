@@ -2,7 +2,7 @@
 layout: post
 title:  "Dagger2 依赖注入解析与使用"
 date:   2016-06-05 00:29:40 +0800
-categories: javascript
+categories: Android
 ---
 
 ## 依赖注入
