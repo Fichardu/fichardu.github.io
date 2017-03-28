@@ -25,6 +25,14 @@
     }
 }
 
+.site-icon {
+    float: right;
+    width: 20px;
+    height: 20px;
+    margin-top: $spacing-unit / 2;
+    margin-left: 24px;    
+}
+
 .site-nav {
     float: right;
     line-height: 56px;
@@ -122,8 +130,8 @@
 }
 
 .footer-col {
-    float: left;
-    margin-bottom: $spacing-unit / 2;
+    float: right;
+    margin-top: $spacing-unit / 2;
     padding-left: $spacing-unit / 2;
 }
 
